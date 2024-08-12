@@ -36,27 +36,84 @@
     <h1>שער הדולר בשקלים</h1>
 
     <div class="rate-container">
-        <h2>גלובס</h2>
-        <p>שער נוכחי: <span id="usd-rate-globes">טוען...</span> ₪</p>
+        <h2>Xe.com</h2>
+        <p>שער נוכחי: <span id="usd-rate-xe">טוען...</span> ₪</p>
+    </div>
+
+    <div class="rate-container">
+        <h2>Open Exchange Rates</h2>
+        <p>שער נוכחי: <span id="usd-rate-oer">טוען...</span> ₪</p>
+    </div>
+
+    <div class="rate-container">
+        <h2>Currencylayer</h2>
+        <p>שער נוכחי: <span id="usd-rate-cl">טוען...</span> ₪</p>
+    </div>
+
+    <div class="rate-container">
+        <h2>Fixer.io</h2>
+        <p>שער נוכחי: <span id="usd-rate-fixer">טוען...</span> ₪</p>
     </div>
 
     <script>
-        async function getUSDRateGlobes() {
+        async function getUSDRateXE() {
             try {
-                const response = await fetch('https://cors-anywhere.herokuapp.com/https://www.globes.co.il/portal/instrument.aspx?instrumentid=118');
+                const response = await fetch('https://cors-anywhere.herokuapp.com/https://www.xe.com/currencyconverter/convert/?Amount=1&From=USD&To=ILS');
                 const text = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(text, 'text/html');
-                const rateElement = doc.querySelector('.instrumentHeaderData > span.value');
-                const rate = rateElement ? rateElement.textContent.trim() : 'לא זמין';
-                document.getElementById('usd-rate-globes').textContent = rate;
+                const rateElement = doc.querySelector('.result__BigRate-sc-1bsijpp-1.iGrAod');
+                const rate = rateElement ? rateElement.textContent.trim().split(' ')[0] : 'לא זמין';
+                document.getElementById('usd-rate-xe').textContent = rate;
             } catch (error) {
-                document.getElementById('usd-rate-globes').textContent = 'לא ניתן לטעון את השער';
-                console.error('Error fetching exchange rate from Globes:', error);
+                document.getElementById('usd-rate-xe').textContent = 'לא ניתן לטעון את השער';
+                console.error('Error fetching exchange rate from Xe:', error);
             }
         }
 
-        getUSDRateGlobes();
+        async function getUSDRateOER() {
+            const apiKey = 'YOUR_OER_API_KEY'; // הכנס כאן את מפתח ה-API שלך
+            try {
+                const response = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${apiKey}`);
+                const data = await response.json();
+                const ilsRate = data.rates.ILS;
+                document.getElementById('usd-rate-oer').textContent = ilsRate.toFixed(2);
+            } catch (error) {
+                document.getElementById('usd-rate-oer').textContent = 'לא ניתן לטעון את השער';
+                console.error('Error fetching exchange rate:', error);
+            }
+        }
+
+        async function getUSDRateCL() {
+            const apiKey = 'YOUR_CL_API_KEY'; // הכנס כאן את מפתח ה-API שלך
+            try {
+                const response = await fetch(`http://api.currencylayer.com/live?access_key=${apiKey}&currencies=ILS&source=USD`);
+                const data = await response.json();
+                const ilsRate = data.quotes.USDILS;
+                document.getElementById('usd-rate-cl').textContent = ilsRate.toFixed(2);
+            } catch (error) {
+                document.getElementById('usd-rate-cl').textContent = 'לא ניתן לטעון את השער';
+                console.error('Error fetching exchange rate:', error);
+            }
+        }
+
+        async function getUSDRateFixer() {
+            const apiKey = 'YOUR_FIXER_API_KEY'; // הכנס כאן את מפתח ה-API שלך
+            try {
+                const response = await fetch(`http://data.fixer.io/api/latest?access_key=${apiKey}&symbols=ILS&base=USD`);
+                const data = await response.json();
+                const ilsRate = data.rates.ILS;
+                document.getElementById('usd-rate-fixer').textContent = ilsRate.toFixed(2);
+            } catch (error) {
+                document.getElementById('usd-rate-fixer').textContent = 'לא ניתן לטעון את השער';
+                console.error('Error fetching exchange rate:', error);
+            }
+        }
+
+        getUSDRateXE();
+        getUSDRateOER();
+        getUSDRateCL();
+        getUSDRateFixer();
     </script>
 </body>
 </html>
