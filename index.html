@@ -4,28 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>שער הדולר בשקלים</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+        .rate-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
 </head>
 <body>
     <h1>שער הדולר בשקלים</h1>
-    <p>שער נוכחי: <span id="usd-rate">טוען...</span> ₪</p>
+
+    <div class="rate-container">
+        <h2>גלובס</h2>
+        <p>שער נוכחי: <span id="usd-rate-globes">טוען...</span> ₪</p>
+    </div>
 
     <script>
-        async function getUSDRate() {
+        async function getUSDRateGlobes() {
             try {
-                const response = await fetch('https://cors-anywhere.herokuapp.com/https://www.google.com/search?q=usd+to+ils');
+                const response = await fetch('https://cors-anywhere.herokuapp.com/https://www.globes.co.il/portal/instrument.aspx?instrumentid=118');
                 const text = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(text, 'text/html');
-                const rateElement = doc.querySelector('.BNeawe.iBp4i.AP7Wnd');
-                const rate = rateElement ? rateElement.textContent.split(" ")[0] : 'לא זמין';
-                document.getElementById('usd-rate').textContent = rate;
+                const rateElement = doc.querySelector('.instrumentHeaderData > span.value');
+                const rate = rateElement ? rateElement.textContent.trim() : 'לא זמין';
+                document.getElementById('usd-rate-globes').textContent = rate;
             } catch (error) {
-                document.getElementById('usd-rate').textContent = 'לא ניתן לטעון את השער';
-                console.error('Error fetching exchange rate:', error);
+                document.getElementById('usd-rate-globes').textContent = 'לא ניתן לטעון את השער';
+                console.error('Error fetching exchange rate from Globes:', error);
             }
         }
 
-        getUSDRate();
+        getUSDRateGlobes();
     </script>
 </body>
 </html>
