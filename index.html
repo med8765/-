@@ -4,27 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>שער הדולר בשקלים</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+        .rate-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
 </head>
 <body>
     <h1>שער הדולר בשקלים</h1>
-    <p>שער נוכחי: <span id="usd-rate">טוען...</span> ₪</p>
 
+    <div class="rate-container">
+        <h2>Xe.com</h2>
+        <p>שער נוכחי: <span id="usd-rate-xe">טוען...</span> ₪</p>
+    </div>
 
-<script>
-    async function getUSDRate() {
-        const apiKey = 'ffabddc47236416ebcbdb75538a1ba58'; // הכנס כאן את מפתח ה-API שלך
-        try {
-            const response = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${apiKey}`);
-            const data = await response.json();
-            const ilsRate = data.rates.ILS;
-            document.getElementById('usd-rate').textContent = ilsRate.toFixed(2);
-        } catch (error) {
-            document.getElementById('usd-rate').textContent = 'לא ניתן לטעון את השער';
-            console.error('Error fetching exchange rate:', error);
+    <div class="rate-container">
+        <h2>Open Exchange Rates</h2>
+        <p>שער נוכחי: <span id="usd-rate-oer">טוען...</span> ₪</p>
+    </div>
+
+    <script>
+        async function getUSDRateXE() {
+            try {
+                const response = await fetch('https://cors-anywhere.herokuapp.com/https://www.xe.com/currencyconverter/convert/?Amount=1&From=USD&To=ILS');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const rateElement = doc.querySelector('.result__BigRate-sc-1bsijpp-1.iGrAod');
+                const rate = rateElement ? rateElement.textContent.trim().split(' ')[0] : 'לא זמין';
+                document.getElementById('usd-rate-xe').textContent = rate;
+            } catch (error) {
+                document.getElementById('usd-rate-xe').textContent = 'לא ניתן לטעון את השער';
+                console.error('Error fetching exchange rate from Xe:', error);
+            }
         }
-    }
 
-    getUSDRate();
-</script>
+        async function getUSDRateOER() {
+            const apiKey = 'ffabddc47236416ebcbdb75538a1ba58'; // המזהה שסיפקת
+            try {
+                const response = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${apiKey}`);
+                const data = await response.json();
+                const ilsRate = data.rates.ILS;
+                document.getElementById('usd-rate-oer').textContent = ilsRate.toFixed(2);
+            } catch (error) {
+                document.getElementById('usd-rate-oer').textContent = 'לא ניתן לטעון את השער';
+                console.error('Error fetching exchange rate:', error);
+            }
+        }
+
+        getUSDRateXE();
+        getUSDRateOER();
+    </script>
 </body>
 </html>
