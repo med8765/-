@@ -9,21 +9,6 @@
     <h1>שער הדולר בשקלים</h1>
     <p>שער נוכחי: <span id="usd-rate">טוען...</span> ₪</p>
 
-    <script>
-        async function getUSDRate() {
-            try {
-                const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-                const data = await response.json();
-                const ilsRate = data.rates.ILS;
-                document.getElementById('usd-rate').textContent = ilsRate.toFixed(2);
-            } catch (error) {
-                document.getElementById('usd-rate').textContent = 'לא ניתן לטעון את השער';
-                console.error('Error fetching exchange rate:', error);
-            }
-        }
-
-        getUSDRate();
-    </script>
 
 <script>
     async function getUSDRate() {
